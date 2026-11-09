@@ -1,0 +1,113 @@
+"""PayPal sandbox adapter (PayPal + AI hackathon build).
+
+Flaire decides first (limits, categories, approvals, fraud checks). Only an approved purchase reaches this adapter,
+and the adapter then moves simulated money through the PayPal Payouts API in the PayPal SANDBOX. Nothing here can
+touch real money: the base URL is the sandbox host and the receiver is a sandbox account.
+
+Flaire amounts are SAR halalas. PayPal does not support SAR, so every call is converted to USD at FX_SAR_USD
+(default 3.75) and the converted amount, currency and rate are recorded on the Transaction.
+
+Needs PAYPAL_CLIENT_ID, PAYPAL_CLIENT_SECRET and PAYPAL_RECEIVER_EMAIL (a sandbox Personal account email).
+Without them every call declines with a clear reason, so the rest of Flaire keeps working.
+
+Endpoints used (https://developer.paypal.com/docs/api/payments.payouts-batch/v1/):
+  POST /v1/oauth2/token             client-credentials access token
+  POST /v1/payments/payouts         send the approved amount to the merchant (sandbox receiver)
+  GET  /v1/payments/payouts/{id}    read the batch status
+"""
+from __future__ import annotations
+
+import secrets
+import time
+import uuid
+
+import httpx
+
+from app.core.config import get_settings
+from app.integrations.payments.base import PaymentResult
+from app.models import Card
+
+_token: dict = {"value": None, "exp": 0.0}
+
+
+class PayPalAdapter:
+    provider = "paypal"
+
+    def __init__(self) -> None:
+        self.settings = get_settings()
+        self.enabled = self.settings.paypal_enabled
+        self.base = self.settings.paypal_base_url.rstrip("/")
+        self.fx_rate = float(self.settings.fx_sar_usd or 3.75)
+
+    # ---- helpers
+    def to_usd_cents(self, halalas: int) -> int:
+        """SAR halalas to USD cents. Never below 1 cent for a positive amount."""
+        return max(1, round(halalas / self.fx_rate)) if halalas > 0 else 0
+
+    def _access_token(self) -> str:
+        if _token["value"] and _token["exp"] > time.time() + 30:
+            return _token["value"]
+        r = httpx.post(f"{self.base}/v1/oauth2/token", data={"grant_type": "client_credentials"},
+                       auth=(self.settings.paypal_client_id, self.settings.paypal_client_secret), headers={"Accept": "application/json"}, timeout=20)
+        if r.status_code != 200:
+            raise RuntimeError(f"PayPal sign-in failed ({r.status_code}). Check the sandbox client ID and secret.")
+        data = r.json()
+        _token["value"] = data["access_token"]
+        _token["exp"] = time.time() + int(data.get("expires_in", 300))
+        return _token["value"]
+
+    def _headers(self) -> dict:
+        return {"Authorization": f"Bearer {self._access_token()}", "Content-Type": "application/json"}
+
+    # ---- adapter interface
+    def create_card(self, label: str, credit_limit: int, currency: str) -> dict:
+        """A PayPal-funded virtual card: a Flaire spending envelope. No PayPal call is needed until a purchase is approved."""
+        return {"last4": f"{secrets.randbelow(10_000):04d}", "provider_token": f"paypal_wallet_{secrets.token_hex(6)}", "available_balance": credit_limit}
+
+    def authorize(self, card: Card, amount: int, merchant: str, descriptor: str) -> PaymentResult:
+        ref = f"paypal_{secrets.token_hex(6)}"
+        if card.status != "active":
+            return PaymentResult(False, "declined", ref, f"Card is {card.status}")
+        if card.currency != "SAR":
+            return PaymentResult(False, "declined", ref, "Currency mismatch")
+        if amount > card.available_balance:
+            return PaymentResult(False, "declined", ref, f"Insufficient funds (available SAR {card.available_balance / 100:,.2f})")
+        if not self.enabled or not self.settings.paypal_receiver_email:
+            return PaymentResult(False, "declined", ref, "PayPal sandbox is not configured (PAYPAL_CLIENT_ID, PAYPAL_CLIENT_SECRET, PAYPAL_RECEIVER_EMAIL)")
+        cents = self.to_usd_cents(amount)
+        batch_id = f"flaire-{uuid.uuid4().hex[:20]}"  # PayPal rejects a repeated sender_batch_id, so a retry cannot pay twice
+        body = {
+            "sender_batch_header": {"sender_batch_id": batch_id, "email_subject": f"Flaire sandbox payment to {merchant}"[:120],
+                                    "email_message": "Approved by Flaire. Sandbox payment, no real money."},
+            "items": [{"recipient_type": "EMAIL", "receiver": self.settings.paypal_receiver_email,
+                       "amount": {"value": f"{cents / 100:.2f}", "currency": "USD"},
+                       "note": f"{descriptor}"[:160], "sender_item_id": batch_id}],
+        }
+        try:
+            r = httpx.post(f"{self.base}/v1/payments/payouts", json=body, headers=self._headers(), timeout=30)
+        except Exception as exc:
+            return PaymentResult(False, "declined", ref, f"PayPal could not be reached: {str(exc)[:120]}")
+        if r.status_code not in (200, 201):
+            try:
+                err = r.json()
+                reason = err.get("message") or err.get("name") or r.text[:160]
+            except Exception:
+                reason = r.text[:160]
+            return PaymentResult(False, "declined", ref, f"PayPal declined: {reason}"[:240], raw={"status_code": r.status_code})
+        head = r.json().get("batch_header", {})
+        paypal_id = head.get("payout_batch_id") or batch_id
+        card.available_balance -= amount
+        return PaymentResult(True, "settled", f"paypal_{paypal_id}", raw={"payout_batch_id": paypal_id, "batch_status": head.get("batch_status"), "merchant": merchant,
+                                                                          "usd": f"{cents / 100:.2f}", "sandbox": True},
+                             issuer_amount=cents, issuer_currency="USD", fx_rate=self.fx_rate)
+
+    def settle(self, card: Card, provider_ref: str, amount: int) -> PaymentResult:
+        return PaymentResult(True, "settled", provider_ref, issuer_amount=self.to_usd_cents(amount), issuer_currency="USD", fx_rate=self.fx_rate)
+
+    def balance(self, card: Card) -> int:
+        return card.available_balance
+
+    def batch_status(self, payout_batch_id: str) -> dict:
+        r = httpx.get(f"{self.base}/v1/payments/payouts/{payout_batch_id}", headers=self._headers(), timeout=20)
+        r.raise_for_status()
+        return r.json()
