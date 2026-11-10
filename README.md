@@ -22,7 +22,7 @@ AI employee ──▶ Flaire (limits, approvals, audit) ──approved only─�
 - A webhook receiver for PayPal payout events (`POST /api/v1/webhooks/paypal`). It never trusts the body: the payout state is always read from PayPal's API first, and signatures are verified when `PAYPAL_WEBHOOK_ID` is set
 - A "Test PayPal connection" button (Connections page) that proves the sandbox keys work without moving money
 - A PayPal panel on every paid transaction in Activity, with the USD amount and exchange rate
-- 20 PayPal related tests (`tests/test_paypal.py`)
+- 8 PayPal tests (`tests/test_paypal.py`)
 
 **Set up the PayPal sandbox (about 10 minutes)**
 1. Sign in at https://developer.paypal.com, open Apps & Credentials, make sure **Sandbox** is selected, and create an app. Under Features, tick **Payouts**.
