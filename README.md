@@ -16,11 +16,23 @@ AI employee ──▶ Flaire (limits, approvals, audit) ──approved only─�
 
 **How AI is used:** the AI employee requests purchases through an MCP connector (ChatGPT and Claude) and a REST API. A Gemini assistant, limited to Flaire topics, answers questions on the website and inside the dashboard and can act on approvals.
 
-**Set up the PayPal sandbox**
-1. Create a Sandbox app at https://developer.paypal.com/dashboard/applications/sandbox and tick Payouts under its features.
-2. Under Testing tools, Sandbox accounts, copy the email of a Personal account. It stands in for the merchant.
+**What is new for this hackathon** (Flaire existed before it; this is the significant update)
+- A PayPal rail: approved purchases are paid out with the PayPal Payouts API (`app/integrations/payments/paypal.py`)
+- Payment lifecycle: a payout starts as "authorized" and becomes "settled" when PayPal says SUCCESS. If PayPal fails, returns or blocks it, the transaction is reversed and the budget and card balance are given back (`app/paypal_sync.py`)
+- A webhook receiver for PayPal payout events (`POST /api/v1/webhooks/paypal`). It never trusts the body: the payout state is always read from PayPal's API first, and signatures are verified when `PAYPAL_WEBHOOK_ID` is set
+- A "Test PayPal connection" button (Connections page) that proves the sandbox keys work without moving money
+- A PayPal panel on every paid transaction in Activity, with the USD amount and exchange rate
+- 20 PayPal related tests (`tests/test_paypal.py`)
+
+**Set up the PayPal sandbox (about 10 minutes)**
+1. Sign in at https://developer.paypal.com, open Apps & Credentials, make sure **Sandbox** is selected, and create an app. Under Features, tick **Payouts**.
+2. Under Testing tools, Sandbox accounts, open (or create) a **Personal** account and copy its email. It stands in for the merchant who gets paid.
 3. Set `PAYPAL_CLIENT_ID`, `PAYPAL_CLIENT_SECRET` and `PAYPAL_RECEIVER_EMAIL` (in Render, or `.env` locally). Never commit them.
-4. Add an AI employee in the dashboard. Its card shows "PayPal Sandbox". Request a purchase, then look at the receiver's balance in the sandbox dashboard.
+4. Optional: in the app's Webhooks section, add `https://YOUR-API/api/v1/webhooks/paypal` for the events `PAYMENT.PAYOUTSBATCH.SUCCESS`, `PAYMENT.PAYOUTSBATCH.DENIED` and `PAYMENT.PAYOUTS-ITEM.FAILED`, then set `PAYPAL_WEBHOOK_ID`. Without it, Flaire still checks PayPal whenever the dashboard loads.
+5. In Flaire open Connections and press **Test PayPal connection**. It should say "Connected to the PayPal sandbox".
+6. Add an AI employee. Its card shows "PayPal Sandbox". Ask for a purchase, then open https://www.sandbox.paypal.com with the Personal account to see the money arrive.
+
+**For judges:** open the live demo, sign in with the test account in `docs/JUDGES.md`, and add an AI employee or use the one that is already set up. Everything is free and sandbox only.
 
 Live demo: https://flaire-nine.vercel.app (use "Try the sandbox free"). Code is MIT licensed.
 

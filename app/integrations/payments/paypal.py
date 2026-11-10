@@ -97,7 +97,8 @@ class PayPalAdapter:
         head = r.json().get("batch_header", {})
         paypal_id = head.get("payout_batch_id") or batch_id
         card.available_balance -= amount
-        return PaymentResult(True, "settled", f"paypal_{paypal_id}", raw={"payout_batch_id": paypal_id, "batch_status": head.get("batch_status"), "merchant": merchant,
+        status = "settled" if head.get("batch_status") == "SUCCESS" else "authorized"  # PayPal clears payouts asynchronously
+        return PaymentResult(True, status, f"paypal_{paypal_id}", raw={"payout_batch_id": paypal_id, "batch_status": head.get("batch_status"), "merchant": merchant,
                                                                           "usd": f"{cents / 100:.2f}", "sandbox": True},
                              issuer_amount=cents, issuer_currency="USD", fx_rate=self.fx_rate)
 
@@ -106,6 +107,47 @@ class PayPalAdapter:
 
     def balance(self, card: Card) -> int:
         return card.available_balance
+
+    def payout_state(self, payout_batch_id: str) -> tuple[str, str]:
+        """Ask PayPal where a payout stands. Returns (flaire_status, detail): settled | authorized (still moving) | reversed (failed, returned or blocked)."""
+        data = self.batch_status(payout_batch_id)
+        batch = str(data.get("batch_header", {}).get("batch_status", "")).upper()
+        items = [str(i.get("transaction_status", "")).upper() for i in data.get("items", [])]
+        bad = {"FAILED", "BLOCKED", "RETURNED", "REFUNDED", "REVERSED", "DENIED"}
+        if batch in ("DENIED", "CANCELED") or any(i in bad for i in items):
+            return "reversed", f"PayPal {', '.join(items) or batch}"
+        if batch == "SUCCESS" and items and all(i == "SUCCESS" for i in items):
+            return "settled", "PayPal SUCCESS"
+        return "authorized", f"PayPal {', '.join(items) or batch or 'PENDING'}"
+
+    def check_connection(self) -> dict:
+        """Used by Settings: proves the sandbox keys work without moving money."""
+        if not self.enabled:
+            return {"ok": False, "message": "PAYPAL_CLIENT_ID and PAYPAL_CLIENT_SECRET are not set on the server."}
+        try:
+            r = httpx.post(f"{self.base}/v1/oauth2/token", data={"grant_type": "client_credentials"},
+                           auth=(self.settings.paypal_client_id, self.settings.paypal_client_secret), headers={"Accept": "application/json"}, timeout=20)
+        except Exception as exc:
+            return {"ok": False, "message": f"PayPal could not be reached: {str(exc)[:120]}"}
+        if r.status_code != 200:
+            return {"ok": False, "message": f"PayPal rejected the keys ({r.status_code}). Use the Client ID and Secret of a SANDBOX app, not a Live one."}
+        scope = str(r.json().get("scope", ""))
+        return {"ok": True, "message": "Connected to the PayPal sandbox.", "sandbox": "sandbox" in self.base,
+                "payouts_enabled": "payouts" in scope.lower() or None, "receiver_set": bool(self.settings.paypal_receiver_email),
+                "receiver": self.settings.paypal_receiver_email}
+
+    def verify_webhook(self, headers: dict[str, str], event: dict) -> bool:
+        """PayPal's own signature check (needs PAYPAL_WEBHOOK_ID)."""
+        wid = self.settings.paypal_webhook_id
+        if not wid:
+            return False
+        body = {"auth_algo": headers.get("paypal-auth-algo"), "cert_url": headers.get("paypal-cert-url"), "transmission_id": headers.get("paypal-transmission-id"),
+                "transmission_sig": headers.get("paypal-transmission-sig"), "transmission_time": headers.get("paypal-transmission-time"), "webhook_id": wid, "webhook_event": event}
+        try:
+            r = httpx.post(f"{self.base}/v1/notifications/verify-webhook-signature", json=body, headers=self._headers(), timeout=20)
+            return r.status_code == 200 and r.json().get("verification_status") == "SUCCESS"
+        except Exception:
+            return False
 
     def batch_status(self, payout_batch_id: str) -> dict:
         r = httpx.get(f"{self.base}/v1/payments/payouts/{payout_batch_id}", headers=self._headers(), timeout=20)

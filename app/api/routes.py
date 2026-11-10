@@ -472,6 +472,8 @@ def reject(pr_id: int, body: ApprovalIn, user: User = Depends(require_approver),
 
 @router.get("/transactions", response_model=list[TransactionOut], tags=["transactions"])
 def list_transactions(card_id: int | None = None, limit: int = Query(50, le=500), user: User = Depends(get_current_user), db: Session = Depends(get_db)):
+    from app.paypal_sync import sync_pending
+    sync_pending(db, user.company_id)
     q = db.query(Transaction).filter(Transaction.company_id == user.company_id)
     if card_id:
         q = q.filter(Transaction.card_id == card_id)
@@ -483,7 +485,23 @@ def get_transaction(tx_id: int, user: User = Depends(get_current_user), db: Sess
     t = db.get(Transaction, tx_id)
     if not t or t.company_id != user.company_id:
         raise HTTPException(404, "Transaction not found")
+    from app.paypal_sync import sync_transaction
+    sync_transaction(db, t)
+    db.refresh(t)
     return transaction_out(t)
+
+
+@router.get("/paypal/status", tags=["paypal"])
+def paypal_status(user: User = Depends(get_current_user)):
+    return {"configured": settings.paypal_enabled, "sandbox": "sandbox" in settings.paypal_base_url, "receiver_set": bool(settings.paypal_receiver_email),
+            "webhook_url_path": "/api/v1/webhooks/paypal"}
+
+
+@router.post("/paypal/test", tags=["paypal"])
+def paypal_test(user: User = Depends(require_approver)):
+    """One click proof that the sandbox keys work. Moves no money."""
+    from app.integrations.payments.paypal import PayPalAdapter
+    return PayPalAdapter().check_connection()
 
 
 @router.post("/transactions/{tx_id}/settle", response_model=TransactionOut, tags=["transactions"])

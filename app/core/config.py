@@ -56,6 +56,7 @@ class Settings(BaseSettings):
     paypal_client_id: str | None = None
     paypal_client_secret: str | None = None
     paypal_receiver_email: str | None = None
+    paypal_webhook_id: str | None = None
     paypal_base_url: str = "https://api-m.sandbox.paypal.com"
 
     # Platform owner console (GET /platform/*): comma separated emails that may read cross-company metrics.
