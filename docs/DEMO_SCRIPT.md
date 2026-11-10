@@ -13,8 +13,8 @@ Show AI workforce, Marketing AI card (PayPal Sandbox, limit). In ChatGPT or the 
 Switch to the PayPal sandbox Personal account: the payment arrived.
 
 1:20 Over the limit, human approves
-Request SAR 5,000. It lands in Approvals. Approve it. The payout goes out and settles.
-"The AI cannot approve itself. A person does."
+Request SAR 900 (over the employee's approval threshold). It lands in Approvals. Press Approve, enter your password, and Flaire sends you to PayPal. Log in with the sandbox buyer account, confirm, and you return to Flaire where it shows paid.
+"The AI cannot approve itself. A person approves twice: in Flaire, and in PayPal."
 
 2:00 Blocked and failed
 Request a Gift card: stopped, PayPal never called. Show the kill switch turning all spending off.
