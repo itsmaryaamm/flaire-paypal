@@ -84,7 +84,7 @@ class PayPalAdapter:
                        "note": f"{descriptor}"[:160], "sender_item_id": batch_id}],
         }
         try:
-            r = httpx.post(f"{self.base}/v1/payments/payouts", json=body, headers=self._headers(), timeout=30)
+            r = httpx.post(f"{self.base}/v1/payments/payouts", json=body, headers={**self._headers(), "PayPal-Request-Id": batch_id}, timeout=30)
         except Exception as exc:
             return PaymentResult(False, "declined", ref, f"PayPal could not be reached: {str(exc)[:120]}")
         if r.status_code not in (200, 201):
@@ -113,7 +113,7 @@ class PayPalAdapter:
         data = self.batch_status(payout_batch_id)
         batch = str(data.get("batch_header", {}).get("batch_status", "")).upper()
         items = [str(i.get("transaction_status", "")).upper() for i in data.get("items", [])]
-        bad = {"FAILED", "BLOCKED", "RETURNED", "REFUNDED", "REVERSED", "DENIED"}
+        bad = {"FAILED", "BLOCKED", "RETURNED", "REFUNDED", "REVERSED", "DENIED"}  # PENDING, ON_HOLD and UNCLAIMED stay "authorized" (still moving)
         if batch in ("DENIED", "CANCELED") or any(i in bad for i in items):
             return "reversed", f"PayPal {', '.join(items) or batch}"
         if batch == "SUCCESS" and items and all(i == "SUCCESS" for i in items):
