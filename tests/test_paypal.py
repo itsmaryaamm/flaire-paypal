@@ -118,7 +118,7 @@ def test_full_flow_agent_request_to_paypal_payout(monkeypatch):
     assert bad["status"] == "denied" and len(calls) == n  # blocked by Flaire, PayPal never called
 
 
-def _boot(monkeypatch, email="life@test.sa"):
+def _boot(monkeypatch, email="life@test.sa", threshold=100_000):
     import os
     os.environ["AUTH_ENGINE"] = "native"
     from fastapi.testclient import TestClient
@@ -151,7 +151,7 @@ def _boot(monkeypatch, email="life@test.sa"):
     c.patch("/api/v1/company", json={"trusted_merchants": ["Canva"]}, headers=H)
     dept = c.post("/api/v1/departments", json={"name": "Marketing", "monthly_budget": 500_000}, headers=H).json()
     ag = c.post("/api/v1/agents", json={"name": "AI", "role": "marketing", "department_id": dept["id"], "per_transaction_limit": 100_000, "monthly_limit": 400_000,
-                                        "approval_threshold": 100_000, "allowed_categories": ["software"], "blocked_merchants": [], "max_requests_per_hour": 50}, headers=H).json()
+                                        "approval_threshold": threshold, "allowed_categories": ["software"], "blocked_merchants": [], "max_requests_per_hour": 50}, headers=H).json()
     A = {"X-Agent-Key": ag["api_key"]}
     pr = c.post("/api/v1/agent/purchase-requests", json={"amount": 37_500, "merchant": "Canva", "category": "software", "description": "Plan"}, headers=A).json()
     assert pr["status"] == "completed", pr["decision"]
@@ -193,3 +193,38 @@ def test_connection_check(monkeypatch):
     c, H, A, ag, pr, state = _boot(monkeypatch, "conn@test.sa")
     r = c.post("/api/v1/paypal/test", headers=H).json()
     assert r["ok"] and r["sandbox"] and r["receiver_set"] and r["payouts_enabled"] is True
+
+
+def test_checkout_approval_flow(monkeypatch):
+    """Over the limit: a person approves in Flaire, then approves in PayPal; only the capture moves money."""
+    s = get_settings()
+    c, H, A, ag, pr0, state = _boot(monkeypatch, "co@test.sa", threshold=50_000)
+    monkeypatch.setattr(s, "paypal_checkout_approval", True)
+    calls = []
+
+    def post(url, **kw):
+        calls.append(url)
+        if url.endswith("/oauth2/token"):
+            return R(200, {"access_token": "tok", "expires_in": 300})
+        if url.endswith("/v2/checkout/orders"):
+            assert kw["json"]["purchase_units"][0]["amount"]["value"] == "240.00"  # SAR 900 at 3.75
+            return R(201, {"id": "ORDER12345", "status": "PAYER_ACTION_REQUIRED", "links": [{"rel": "payer-action", "href": "https://www.sandbox.paypal.com/checkoutnow?token=ORDER12345"}]})
+        if url.endswith("/capture"):
+            return R(201, {"status": "COMPLETED", "purchase_units": [{"payments": {"captures": [{"id": "CAP1", "status": "COMPLETED", "amount": {"value": "240.00"}}]}}]})
+        raise AssertionError(url)
+
+    monkeypatch.setattr(httpx, "post", post)
+    big = c.post("/api/v1/agent/purchase-requests", json={"amount": 90_000, "merchant": "Canva", "category": "software", "description": "Annual plan"}, headers=A).json()
+    assert big["status"] == "pending_approval"
+    n = len(calls)
+    done = c.post(f"/api/v1/approvals/{big['id']}/approve", json={"password": "password123"}, headers=H)
+    assert done.status_code == 200, done.text
+    res = done.json()
+    assert res["status"] == "awaiting_paypal" and res["decision"]["paypal_order"]["approve_url"].endswith("ORDER12345")
+    assert not any(u.endswith("/capture") for u in calls[n:])  # nothing captured yet
+    assert c.get("/api/v1/cards", headers=H).json()[0]["available_balance"] == 400_000 - 37_500
+    cap = c.post("/api/v1/paypal/checkout/capture", json={"order_id": "ORDER12345"}, headers=H)
+    assert cap.status_code == 200 and cap.json()["status"] == "completed"
+    tx = c.get(f"/api/v1/transactions/{cap.json()['transaction_id']}", headers=H).json()
+    assert tx["status"] == "settled" and tx["provider_ref"] == "paypal_capture_CAP1" and tx["issuer_amount"] == 24_000
+    assert c.post("/api/v1/paypal/checkout/capture", json={"order_id": "ORDER12345"}, headers=H).status_code == 404  # cannot capture twice

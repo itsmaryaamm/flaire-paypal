@@ -108,6 +108,35 @@ class PayPalAdapter:
     def balance(self, card: Card) -> int:
         return card.available_balance
 
+    def create_order(self, halalas: int, merchant: str, request_id: int, descriptor: str) -> dict:
+        """PayPal Orders v2: a CAPTURE order for the approved amount. The merchant (sandbox receiver) is the payee; the approver is the payer."""
+        cents = self.to_usd_cents(halalas)
+        body = {"intent": "CAPTURE",
+                "purchase_units": [{"reference_id": f"flaire-{request_id}", "description": descriptor[:127],
+                                    "amount": {"currency_code": "USD", "value": f"{cents / 100:.2f}"},
+                                    **({"payee": {"email_address": self.settings.paypal_receiver_email}} if self.settings.paypal_receiver_email else {})}],
+                "payment_source": {"paypal": {"experience_context": {
+                    "brand_name": "Flaire", "user_action": "PAY_NOW", "shipping_preference": "NO_SHIPPING",
+                    "return_url": f"{self.settings.frontend_url.rstrip('/')}/paypal/return", "cancel_url": f"{self.settings.frontend_url.rstrip('/')}/paypal/return?cancelled=1"}}}}
+        r = httpx.post(f"{self.base}/v2/checkout/orders", json=body, headers={**self._headers(), "PayPal-Request-Id": f"flaire-order-{request_id}-{uuid.uuid4().hex[:8]}"}, timeout=30)
+        if r.status_code not in (200, 201):
+            raise RuntimeError(f"{r.status_code} {r.text[:160]}")
+        data = r.json()
+        link = next((l["href"] for l in data.get("links", []) if l.get("rel") in ("payer-action", "approve")), None)
+        if not link:
+            raise RuntimeError("PayPal did not return an approval link")
+        return {"id": data["id"], "approve_url": link, "usd": f"{cents / 100:.2f}", "status": data.get("status")}
+
+    def capture_order(self, order_id: str) -> dict:
+        r = httpx.post(f"{self.base}/v2/checkout/orders/{order_id}/capture", json={}, headers={**self._headers(), "PayPal-Request-Id": f"flaire-capture-{order_id}"}, timeout=30)
+        if r.status_code not in (200, 201):
+            raise RuntimeError(f"{r.status_code} {r.text[:160]}")
+        data = r.json()
+        cap = (((data.get("purchase_units") or [{}])[0].get("payments") or {}).get("captures") or [{}])[0]
+        status = str(cap.get("status") or data.get("status") or "").upper()
+        usd = float((cap.get("amount") or {}).get("value", 0) or 0)
+        return {"status": "COMPLETED" if status == "COMPLETED" else status, "capture_id": cap.get("id") or order_id, "usd_cents": round(usd * 100)}
+
     def payout_state(self, payout_batch_id: str) -> tuple[str, str]:
         """Ask PayPal where a payout stands. Returns (flaire_status, detail): settled | authorized (still moving) | reversed (failed, returned or blocked)."""
         data = self.batch_status(payout_batch_id)

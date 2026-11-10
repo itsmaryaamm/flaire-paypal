@@ -57,6 +57,10 @@ class Settings(BaseSettings):
     paypal_client_secret: str | None = None
     paypal_receiver_email: str | None = None
     paypal_webhook_id: str | None = None
+    # When true, a purchase that a person approved is paid through PayPal Orders: the approver confirms it with their own PayPal login.
+    paypal_checkout_approval: bool = False
+    # Where PayPal sends the approver back after approving (the Flaire web app).
+    frontend_url: str = "https://flaire-nine.vercel.app"
     paypal_base_url: str = "https://api-m.sandbox.paypal.com"
 
     # Platform owner console (GET /platform/*): comma separated emails that may read cross-company metrics.

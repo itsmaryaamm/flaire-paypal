@@ -497,6 +497,24 @@ def paypal_status(user: User = Depends(get_current_user)):
             "webhook_url_path": "/api/v1/webhooks/paypal"}
 
 
+class PayPalCaptureIn(BaseModel):
+    order_id: str = Field(min_length=5, max_length=64)
+
+
+@router.post("/paypal/checkout/capture", response_model=PurchaseRequestOut, tags=["paypal"])
+def paypal_capture(body: PayPalCaptureIn, user: User = Depends(require_approver), db: Session = Depends(get_db)):
+    """The approver is back from PayPal. Capture the order and finish the purchase."""
+    from app.services import complete_paypal_checkout
+    company = company_of(user, db)
+    rows = db.query(PurchaseRequest).filter(PurchaseRequest.company_id == user.company_id, PurchaseRequest.status == "awaiting_paypal").all()
+    pr = next((r for r in rows if ((r.decision or {}).get("paypal_order") or {}).get("id") == body.order_id), None)
+    if pr is None:
+        raise HTTPException(404, "No purchase is waiting for this PayPal order.")
+    complete_paypal_checkout(db, company, pr, body.order_id, user)
+    db.refresh(pr)
+    return purchase_out(pr)
+
+
 @router.post("/paypal/test", tags=["paypal"])
 def paypal_test(user: User = Depends(require_approver)):
     """One click proof that the sandbox keys work. Moves no money."""
