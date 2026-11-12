@@ -44,7 +44,7 @@ Flaire existed as a simulated card product. During the hackathon we added the wh
 PayPal Payouts API, PayPal Orders v2, FastAPI, SQLAlchemy, PostgreSQL, React, Vite, Tailwind, Gemini, MCP, ChatGPT, Claude, Render (API and database), Vercel (web app).
 
 ## Prize categories to mention
-Best Use of Agentic Commerce, Best Use of PayPal + AI, Best Use of Render, Most Impactful, Best Demo Delivery.
+Best Use of Agentic Commerce, Best Use of PayPal + AI, Best Use of Render, Most Impactful, Most Creative, Best Demo Delivery.
 
 ## Links
 - Repo: https://github.com/itsmaryaamm/flaire-paypal

@@ -6,7 +6,7 @@ What judges said wins (JetBrains judging notes and the Devpost criteria): state 
 
 Criteria this script hits: Technological Implementation (the "under the hood" beat), Design (clean screens, no clutter), Potential Impact (the money and the problem), Innovation (a rule layer for AI spending), Presentation (end to end, no dead air).
 
-Prize categories to name on the Devpost text: Best Use of Agentic Commerce, Best Use of PayPal + AI, Best Use of Render (the API runs on Render), Most Impactful, Best Demo Delivery.
+Prize categories to name on the Devpost text: Best Use of Agentic Commerce, Best Use of PayPal + AI, Best Use of Render (the API runs on Render), Most Impactful, Most Creative, Best Demo Delivery.
 
 ## Before you record (30 minutes, do all of it)
 
