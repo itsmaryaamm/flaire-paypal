@@ -19,41 +19,37 @@ Prize categories for Devpost: Best Use of Agentic Commerce, Best Use of PayPal +
    - Use Flaire to pay $200 to Northwind Software for the website build milestone.
    - Use Flaire to pay $320 to Blueline Media for an ad package.
 
-## Strategy for the 3 minutes
+## Final script (target 2:45, hard limit 3:00)
 
-Judges know PayPal and have seen "an AI agent pays with PayPal" many times. We do not win by showing that an agent can pay. We win by showing the missing layer: who lets an agent spend, how much, who approves, who can stop it. PayPal's own idea list (agents that pay contractors when a job is complete, agents that settle with other agents, agentic checkout) all assume the agent is allowed to move money. Flaire is the permission and control layer that makes those ideas safe for a real finance team, built natively on PayPal Payouts and Orders.
+Prize targets and where the video earns each: Best Use of Agentic Commerce (the agent pays inside a policy), Best Use of PayPal + AI (Payouts and Orders driven by ChatGPT), Best Demo Delivery (three proofs, measured time, no dead air), Render (named once). Honest framing is on screen at the start and the end.
 
-Time budget: 20 seconds thesis (earns the next 2 minutes), 90 seconds of live proof, 25 seconds of engineering credibility, 20 seconds of why it matters.
+**0:00 to 0:25 The problem**
+[Black screen, white text, one line at a time: "Illustrative team: 100 AI agent payments a month." "5 minutes to check each one." "8 hours 20 minutes of review. Every month." "Or open access, and no control." Small source line at the bottom: "Checkout.com, Agentic Commerce 2026: 400 payments leaders, 12,000+ consumers." Then cut to the Flaire logo.]
+"Consider a team whose AI agents request 100 routine payments a month. Five minutes to check each one is over eight hours of human review, and the agent waits on every answer. Or the agent gets open access, and finance loses control. Checkout.com's 2026 report says three in four payments leaders need to revoke an agent's permission instantly. That is the gap."
 
-## Script (about 400 words, target 2:50)
+**0:25 to 0:32 Title**
+[Flaire logo with the line: "Agentic commerce with a spending policy. Built on PayPal."]
+"This is Flaire. Agentic commerce, with a spending policy, built on PayPal."
 
-**0:00 to 0:20 Thesis**
-[Black screen. One white line at a time, 2 seconds each: "Agents that pay contractors when a job is done." "Agents that settle payments with other agents." "Agents that check out for you." Then: "All of them need one thing first." Then large: "Permission." Cut to ChatGPT with prompt 1 pasted.]
-"PayPal's own idea list has AI agents paying contractors, settling with other agents, checking out for you. Not recommending, transacting. But every one of them needs an answer nobody has solved. Who gave the agent permission to spend, how much, and who can stop it?"
+**0:32 to 1:02 Proof 1: inside the rules**
+[ChatGPT with prompt 1, press send. The answer. Flaire Spending, Acme Design $100, the PayPal panel. A stopwatch overlay: "Request to payout: N seconds" (use your real measured number). PayPal merchant Activity: "$100.00 Completed".]
+"My AI employee lives in ChatGPT. A contractor finishes a job, and it pays 100 dollars. Flaire checks the agent's budget, its per payment limit and whether the payee is trusted. All inside the rules, so it pays through the PayPal Payouts API, no human needed. Request to payout, N seconds. And it lands in PayPal."
 
-**0:20 to 0:28 Title**
-[Flaire logo with the line: "The permission layer for AI agents that move money. Built on PayPal."]
-"This is Flaire."
+**1:02 to 1:50 Proof 2: above the limit, a human approves inside PayPal**
+[Prompt 2. ChatGPT says it is waiting. Approvals: "$200 Northwind Software, waiting". Overlay: "The AI cannot approve itself". Approve, password. Private window: PayPal login as the approver, checkout $200.00, Pay. Return page. Merchant Activity $200.00.]
+"Now 200 dollars, above this agent's limit. Flaire stops. ChatGPT has no approve button. A person approves in Flaire. Then Flaire hands off to PayPal Orders, where that person approves again with their own PayPal login, and PayPal moves the money. Small payments run alone. Big ones need a human. And PayPal is the final authority."
 
-**0:28 to 1:00 Proof 1: a job is complete, the agent pays**
-[Press send on prompt 1. ChatGPT answers. Spending, the Acme Design $100 row, the PayPal panel. Then PayPal merchant Activity: "$100.00 Completed". Overlay: "Inside the rules: PayPal Payouts, no human needed".]
-"A job is marked complete. My AI employee in ChatGPT pays the contractor 100 dollars. Flaire first checks that employee's budget, its per payment limit and whether the payee is trusted. All inside the rules, so Flaire pays through the PayPal Payouts API. And it lands in PayPal."
+**1:50 to 2:12 Proof 3: stopped**
+[Prompt 3. ChatGPT says denied. A red "Blocked" row with its reason. Overlay: "Denied before PayPal was called". Kill switch on (frozen banner), then off.]
+"Now 320 dollars, over the limit. Denied before PayPal is ever called, and recorded in an audit log. And one switch freezes every agent."
 
-**1:00 to 1:50 Proof 2: a bigger payment, a human approves inside PayPal**
-[Send prompt 2. ChatGPT says it is waiting. Approvals: "$200 Northwind Software, waiting". Overlay: "The AI cannot approve itself". Approve, password. Private window: PayPal login as the approver, checkout $200.00, Pay. Return page. Merchant Activity $200.00.]
-"Now 200 dollars. A shared card or an open API key would just send it. Flaire stops, because this employee may not move that much alone. ChatGPT has no approve button. A person approves in Flaire. Then Flaire hands off to PayPal Orders, where that person approves again with their own PayPal login, and PayPal moves the money. Autonomy for small payments, a human for big ones, PayPal as the final authority."
-
-**1:50 to 2:15 Proof 3: an agent that goes too far**
-[Send prompt 3. ChatGPT says denied. Spending: red "Blocked" row, open it to show the reason. Overlay: "Denied before PayPal was called". Toggle the kill switch on (frozen banner), then off.]
-"Now an agent that goes too far. 320 dollars is over the limit, so it is denied before PayPal is ever called, and the decision is recorded in a tamper evident audit log. If anything looks wrong, one switch freezes every agent."
-
-**2:15 to 2:35 Engineering credibility**
+**2:12 to 2:35 Engineering**
 [Connections, "Test PayPal connection", green message. Then 3 seconds of the GitHub README showing "113 tests".]
-"This is real engineering, not a mockup. PayPal OAuth, Payouts with idempotency keys so a retry never pays twice, Orders for human approval, and webhooks Flaire always re-verifies with PayPal. If PayPal returns a payout, the budget is restored. 113 automated tests. Any ChatGPT or Claude agent connects over MCP, and the API runs on Render."
+"Real engineering, not a mockup. PayPal OAuth, Payouts with idempotency keys so a retry never pays twice, Orders for human approval, and webhooks Flaire re-verifies with PayPal. Any ChatGPT or Claude agent connects over MCP, and the API runs on Render. 113 automated tests."
 
-**2:35 to 2:55 Why it matters**
-[Overview dashboard, held still. Optional face circle bottom right. End card: Flaire logo, flaire-paypal.vercel.app, github.com/itsmaryaamm/flaire-paypal, "PayPal sandbox. No real money moves."]
-"Contractor payouts, agent to agent settlement, agentic checkout. They only reach real businesses when a finance team can trust them. Flaire is that trust layer, built on PayPal. Today it runs in the sandbox. Next, live accounts, and a small fee on the volume it governs. Flaire. Let AI spend, with a human in charge."
+**2:35 to 2:50 Close**
+[Overview dashboard, held still. Optional face circle bottom right. End card: logo, flaire-paypal.vercel.app, github.com/itsmaryaamm/flaire-paypal, "PayPal sandbox. No real money moves."]
+"Everything you saw runs in the PayPal sandbox, paid to a sandbox merchant. Next: live accounts, and a pilot to measure how much review time teams really save. Flaire. Let AI spend, with a human in charge."
 
 ## Recording technique
 
