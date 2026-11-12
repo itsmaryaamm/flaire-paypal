@@ -573,7 +573,7 @@ export default function SetupPage() {
   useEffect(() => {
     if (current) return
     const wanted = params.get('step')
-    if (wanted === 'twofa' || wanted === '2fa') {
+    if (!PAYPAL_ONLY && (wanted === 'twofa' || wanted === '2fa')) {
       setCurrent('twofa')
       return
     }
