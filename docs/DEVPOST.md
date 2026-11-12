@@ -18,7 +18,7 @@ Every decision is signed, audited and visible in Spending and Approvals.
 - PayPal Orders v2 for the second, human approval step (approver logs in to PayPal).
 - Payout lifecycle sync and PayPal webhooks. Webhooks are never trusted on their own: Flaire re-fetches the state from PayPal before changing anything.
 - Automatic budget refund when PayPal returns, holds or fails a payout.
-- PayPal sandbox only. No real money moves.
+- PayPal sandbox only. No real money moves. In the sandbox every payout goes to one sandbox merchant account, so the supplier name on a request (for example Acme Design) is recorded in Flaire but is not a real supplier. It demonstrates the payment flow, not a purchase from that company.
 
 ## How we use AI
 - The AI employees are real agents in ChatGPT and Claude, connected to Flaire through MCP and a REST API.
@@ -48,5 +48,5 @@ Best Use of Agentic Commerce, Best Use of PayPal + AI, Best Use of Render, Most 
 
 ## Links
 - Repo: https://github.com/itsmaryaamm/flaire-paypal
-- Live demo: https://flaire-nine.vercel.app
+- Live demo: https://flaire-paypal.vercel.app
 - Judge access: docs/JUDGES.md in the repo

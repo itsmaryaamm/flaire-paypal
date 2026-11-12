@@ -103,4 +103,4 @@ render.yaml  Render blueprint for the API and Postgres
 
 ## Honest limits
 
-Everything runs in the PayPal sandbox. No real money moves, no real company credentials are used by any AI, and live PayPal accounts are the next step.
+Everything runs in the PayPal sandbox. No real money moves. Every payout goes to one sandbox merchant account, so the supplier name on a request is recorded but is not a real supplier, no real company credentials are used by any AI, and live PayPal accounts are the next step.

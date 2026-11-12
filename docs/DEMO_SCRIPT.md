@@ -10,7 +10,7 @@ Prize categories for Devpost: Best Use of Agentic Commerce, Best Use of PayPal +
 
 1. Wake the API 2 minutes before: open https://flaire-api-cmrs.onrender.com/api/v1/health.
 2. Controls, trusted merchants: add Acme Design, Northwind Software, Blueline Media (so the new-supplier review does not interfere).
-3. The ChatGPT employee limits: $267 per purchase, approval from $133, monthly $2,667 (the defaults). Do not change them.
+3. Check the AI employee's limits (AI workforce, Edit): per purchase at least $267, approval threshold BELOW $200 (new accounts default to $133), monthly $2,667 or more. If your threshold equals the per purchase limit, the $200 request will not wait for approval.
 4. Do one full rehearsal with the same three prompts. The recording is take two.
 5. Browser 1920x1080, zoom 110 percent, one window per tab, close everything else, hide bookmarks, Do Not Disturb on, phone notifications off.
 6. Tabs in order: ChatGPT, Flaire Spending, Flaire Approvals, PayPal sandbox merchant Activity (merchant@flaire.com), and a PRIVATE window for the approver so the PayPal login shows.
@@ -33,11 +33,11 @@ Motif to repeat: "The AI can ask. Only a human can approve. Only PayPal moves th
 
 **0:17 to 0:55 Flow 1: within the rules**
 [Press send on prompt 1. ChatGPT answers. Cut to Flaire Spending, click the Acme Design $100 row, open the PayPal panel. Cut to PayPal merchant Activity, refresh, "$100.00 Completed". Overlay text: "PayPal Payouts API".]
-"My AI employee lives in ChatGPT. I ask for a 100 dollar team workspace. Before any money moves, Flaire checks its budget, its per purchase limit and the supplier. It passes, so Flaire pays through the PayPal Payouts API. And here it is in PayPal. 100 dollars, completed."
+"My AI employee lives in ChatGPT. I ask for a 100 dollar team workspace. Before any money moves, Flaire checks its budget, its per purchase limit and the supplier. It passes, so Flaire pays through the PayPal Payouts API. And here it is in the PayPal sandbox merchant account. 100 dollars, completed."
 
 **0:55 to 1:45 Flow 2: a human approves, inside PayPal**
 [Send prompt 2. ChatGPT says it is waiting for approval. Flaire Approvals: "$200 Northwind Software, waiting". Overlay: "The AI cannot approve itself". Click Approve, type the password. Private window: PayPal login as the approver, PayPal checkout showing $200.00, click Pay. Return page "Paid through PayPal". Cut to merchant Activity $200.00.]
-"Now 200 dollars, above this employee's approval limit. On a shared card, this just goes through. Here, Flaire stops. ChatGPT has no approve button, only a person does. I approve in Flaire with my password. Then Flaire sends me into PayPal, where I approve again with my own PayPal login. PayPal Orders moves the money. Two approvals, one payment."
+"Now 200 dollars, above this employee's approval limit. On a shared card, this just goes through. Here, Flaire stops. ChatGPT has no approve button, only a person does. I approve in Flaire with my password. Then Flaire sends me into PayPal, where I approve again with my own PayPal login. PayPal Orders moves the money to the sandbox merchant. Two approvals, one payment."
 
 **1:45 to 2:10 Flow 3: blocked, and the kill switch**
 [Send prompt 3. ChatGPT says denied. Flaire Spending: red "Blocked" row. Overlay: "Denied before PayPal was called". Toggle the kill switch on (banner: all AI employees frozen), then off.]
