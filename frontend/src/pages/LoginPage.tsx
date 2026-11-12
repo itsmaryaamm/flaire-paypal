@@ -12,7 +12,7 @@ import { GoogleButton } from '../components/GoogleButton'
 import { AuthShell } from './AuthShell'
 
 export default function LoginPage() {
-  const { login, provider } = useAuth()
+  const { login } = useAuth()
   const t = useT()
   const navigate = useNavigate()
   const location = useLocation() as { state?: { from?: string; email?: string } }
@@ -25,7 +25,6 @@ export default function LoginPage() {
   const [error, setError] = useState<string | null>(null)
   const [busy, setBusy] = useState(false)
   const [waking, setWaking] = useState<number | null>(null)
-  const builtin = provider === 'builtin'
 
   // Warm the backend as soon as the page opens, so the first sign-in does not hit a sleeping server.
   useEffect(() => {
@@ -133,25 +132,6 @@ export default function LoginPage() {
       </form>
 
       <GoogleButton returnTo={returnTo !== '/' ? returnTo : undefined} />
-
-      {builtin && (
-        <div className="mt-5 rounded-card border border-dashed border-line-strong bg-lavender px-3.5 py-3 text-xs text-neutral-600">
-          <div>
-            {t('auth.demoAccount')}: <code className="font-mono text-ink">demo@flaire.sa</code> /{' '}
-            <code className="font-mono text-ink">demo1234</code>
-          </div>
-          <button
-            type="button"
-            className="text-brand font-semibold mt-1 hover:underline"
-            onClick={() => {
-              setEmail('demo@flaire.sa')
-              setPassword('demo1234')
-            }}
-          >
-            {t('auth.fillDemo')}
-          </button>
-        </div>
-      )}
 
       <p className="text-sm text-neutral-500 mt-6">
         {t('auth.newHere')}{' '}
