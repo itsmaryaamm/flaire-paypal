@@ -13,7 +13,7 @@ AI employee
 
 **How PayPal is used** (`app/integrations/payments/paypal.py`)
 - OAuth client-credentials token from `/v1/oauth2/token`
-- `POST /v1/payments/payouts` for every approved purchase, with a unique `sender_batch_id` so a retry can never pay twice
+- `POST /v1/payments/payouts` for every approved purchase, with a `PayPal-Request-Id` and a unique `sender_batch_id` on every payout, and the payment status is reconciled with PayPal afterwards
 - PayPal has no SAR, so amounts convert to USD at 3.75 and the rate and USD amount are saved on each transaction
 - Flaire's own checks run first: a denied or waiting request never calls PayPal (see `tests/test_paypal.py`)
 

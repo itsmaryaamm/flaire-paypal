@@ -4,7 +4,7 @@
 The finance department for AI employees. Flaire lets AI agents spend, inside rules a human sets, and pays through PayPal.
 
 ## Inspiration
-AI agents can now buy things: software seats, ads, tools. Companies handle that by handing the agent a card and hoping. There is no budget per agent, no approval, no audit trail and no off switch. We wanted the missing finance layer.
+AI agents can now buy things: software seats, ads, tools. Companies handle that by handing the agent a card and hoping. There is no budget per agent, no approval, no audit trail and no off switch. We wanted the missing finance layer. The wider signal: in Checkout.com's Agentic Commerce 2026 report (400 payments leaders and 12,000+ consumers, consumer commerce context), 75% of the businesses stressed real-time permission revocation, and consumers named spending caps and approval above a threshold among their non-negotiable controls. Those are the controls Flaire gives a business for the agents it runs. Our own time example is an assumption: consider a team with 100 agent payment requests a month at five minutes of manual checking each, which is over eight hours of review. We have not measured real savings yet; that is what a pilot would test.
 
 ## What it does
 Each AI employee gets a monthly budget, a per purchase limit, an approval threshold and trusted merchants. When an agent in ChatGPT, Claude or any MCP client asks to buy something, Flaire decides first:
@@ -14,7 +14,7 @@ Each AI employee gets a monthly budget, a per purchase limit, an approval thresh
 Every decision is signed, audited and visible in Spending and Approvals.
 
 ## How we built it with PayPal
-- PayPal Payouts API for approved purchases, with idempotency keys and unique batch ids.
+- PayPal Payouts API for approved purchases, with a PayPal-Request-Id and a unique batch id on every payout. Payment status is reconciled with PayPal afterwards.
 - PayPal Orders v2 for the second, human approval step (approver logs in to PayPal).
 - Payout lifecycle sync and PayPal webhooks. Webhooks are never trusted on their own: Flaire re-fetches the state from PayPal before changing anything.
 - Automatic budget refund when PayPal returns, holds or fails a payout.
