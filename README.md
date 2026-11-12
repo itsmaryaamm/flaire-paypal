@@ -5,7 +5,10 @@
 An AI employee (ChatGPT, Claude or Gemini) asks to buy something. Flaire checks the budget, per-purchase limit, allowed categories, blocked suppliers and approval rules first. A purchase under the limit goes straight through, a larger one waits for a human to approve, and a blocked one is stopped. Only an approved purchase reaches PayPal, where Flaire sends the money with the **PayPal Payouts API** in the PayPal sandbox.
 
 ```
-AI employee ──▶ Flaire (limits, approvals, audit) ──approved only──▶ PayPal Payouts API (sandbox) ──▶ merchant
+AI employee
+  -> Flaire (limits, approvals, audit)
+  -> approved only -> PayPal Payouts API (sandbox)
+  -> merchant
 ```
 
 **How PayPal is used** (`app/integrations/payments/paypal.py`)
@@ -83,11 +86,14 @@ Monthly budget per employee and per company, a per purchase limit, a human appro
 ## Project layout
 
 ```
-app/                 FastAPI backend (services.py is the purchase pipeline, integrations/payments/paypal.py is the PayPal adapter)
-tests/               pytest suite
-frontend/            React + Vite + Tailwind dashboard and marketing site (VITE_PAYPAL_ONLY=true builds the PayPal edition)
-docs/                API, security, judges guide, demo script
-render.yaml          Render blueprint for the API and Postgres
+app/         FastAPI backend
+  services.py                      the purchase pipeline
+  integrations/payments/paypal.py  the PayPal adapter
+tests/       pytest suite
+frontend/    React + Vite + Tailwind app and site
+             (VITE_PAYPAL_ONLY=true builds the PayPal edition)
+docs/        API, security, judges guide, demo script
+render.yaml  Render blueprint for the API and Postgres
 ```
 
 ## Deploy
