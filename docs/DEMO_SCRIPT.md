@@ -58,3 +58,7 @@ End card (2 seconds, text only): flaire-nine.vercel.app
 ## If you run out of time
 
 Cut the "Under the hood" beat to one sentence. Never cut Flow 2, it is the strongest moment in the whole video.
+
+## Feature freeze rule (from the hackathon demo tips)
+
+The demo script above is the user journey. If a feature is not in it, do not build it before the deadline. If a step cannot be shown live, cut it from the story. The only changes allowed now are fixes that stop the three flows (Notion-size purchase paid, mid-size purchase approved in PayPal, oversize purchase blocked) from working.

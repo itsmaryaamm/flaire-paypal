@@ -40,6 +40,20 @@ Live demo: https://flaire-paypal.vercel.app (use "Try free"). API: https://flair
 
 ---
 
+## Architecture
+
+```mermaid
+flowchart LR
+    AI["AI employee<br/>(ChatGPT, Claude, in-app chat)"] -->|"own MCP link or REST"| API["Flaire API on Render<br/>FastAPI + Postgres"]
+    API --> RULES{"Rules<br/>budget, limit, approval,<br/>blocked, kill switch"}
+    RULES -->|denied| STOP["Stopped, PayPal never called"]
+    RULES -->|"needs a person"| HUMAN["Human approves in Flaire<br/>(password re-entry)"]
+    HUMAN -->|"PayPal Orders v2: approver logs in on PayPal"| PP
+    RULES -->|"within limits"| PP["PayPal sandbox<br/>Payouts API"]
+    PP -->|"webhook, re-verified with PayPal"| API
+    API --> UI["Dashboard on Vercel<br/>spending, approvals, audit"]
+```
+
 ## Run it locally
 
 Needs Python 3.11+ and Node 20+.
