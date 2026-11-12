@@ -1,64 +1,59 @@
-# Demo video script (target 2:40, hard limit 3:00)
+# Demo video script (target 2:50, hard limit 3:00)
 
-Rules from the hackathon: under 3 minutes, public on YouTube, shows the project working, no third party logos, no copyrighted music. No music at all is the safest choice.
+Rules: under 3 minutes, public on YouTube, shows the project working, no third party logos or copyrighted music. No music is safest. Made-up merchants only (Acme Design, Northwind Software, Blueline Media).
 
-What judges said wins (JetBrains judging notes and the Devpost criteria): state the problem in one breath, show one flow working end to end within about 90 seconds, contrast the old way with the new way, be honest about what is sandbox, and never stall on forms or slow pages.
+Criteria this hits: Technological Implementation (PayPal Payouts, Orders, webhooks), Design (clean dashboard), Potential Impact (the problem and the money), Innovation (a rule layer for AI spending with a human approving inside PayPal), Presentation (three flows, no dead air).
 
-Criteria this script hits: Technological Implementation (the "under the hood" beat), Design (clean screens, no clutter), Potential Impact (the money and the problem), Innovation (a rule layer for AI spending), Presentation (end to end, no dead air).
+Prize categories for Devpost: Best Use of Agentic Commerce, Best Use of PayPal + AI, Best Use of Render, Most Impactful, Most Creative, Best Demo Delivery.
 
-Prize categories to name on the Devpost text: Best Use of Agentic Commerce, Best Use of PayPal + AI, Best Use of Render (the API runs on Render), Most Impactful, Most Creative, Best Demo Delivery.
+## Before you record (30 minutes)
 
-## Before you record (30 minutes, do all of it)
+1. Wake the API 2 minutes before: open https://flaire-api-cmrs.onrender.com/api/v1/health.
+2. Controls, trusted merchants: add Acme Design, Northwind Software, Blueline Media (so the new-supplier review does not interfere).
+3. The ChatGPT employee limits: $267 per purchase, approval from $133, monthly $2,667 (the defaults). Do not change them.
+4. Do one full rehearsal with the same three prompts. The recording is take two.
+5. Browser 1920x1080, zoom 110 percent, one window per tab, close everything else, hide bookmarks, Do Not Disturb on, phone notifications off.
+6. Tabs in order: ChatGPT, Flaire Spending, Flaire Approvals, PayPal sandbox merchant Activity (merchant@flaire.com), and a PRIVATE window for the approver so the PayPal login shows.
+7. Prompts in a notes file (paste, do not type):
+   - Use Flaire to request a purchase of $100 from Acme Design for a team workspace.
+   - Use Flaire to request a purchase of $200 from Northwind Software for a design license.
+   - Use Flaire to request a purchase of $320 from Blueline Media for an ad package.
 
-1. Wake the API: open https://flaire-api-cmrs.onrender.com/health in a tab. The free Render instance sleeps and takes about 50 seconds to wake. Do this 2 minutes before recording.
-2. Raise Marketing AI's monthly limit to SAR 10,000 (AI workforce, Marketing AI, Edit) so you do not run out during takes.
-3. Keep the approval threshold at SAR 500 and the per transaction limit at SAR 1,000.
-4. Use different merchants so the split purchase rule does not interfere: Notion (SAR 375), Figma (SAR 800), Canva (SAR 1,200, will be blocked). If a new merchant asks for review, add it under Controls, trusted merchants.
-5. Do one full rehearsal of all three requests with the same merchants. The recording is take two.
-6. Windows: browser at 1920x1080, zoom 110 percent, dark mode off (light reads better on video), close every other tab, hide the bookmarks bar, turn on Do Not Disturb.
-7. Tabs in this order: ChatGPT, Flaire Spending, Flaire Approvals, PayPal sandbox merchant Activity (log in as merchant@flaire.com in a normal window), and an incognito window for approver@flaire.com.
-8. Put the three prompts in a notes file so you paste them, you do not type them:
-   - Use Flaire to request a purchase of SAR 375 from Notion for a team workspace.
-   - Use Flaire to request a purchase of SAR 800 from Figma for a design seat.
-   - Use Flaire to request a purchase of SAR 1,200 from Canva for a team plan.
+## Script (about 380 words)
 
-## Script (voice over, about 330 words)
+**0:00 to 0:12 Hook.** Screen: ChatGPT with the first prompt pasted. Press send as you start.
+"AI agents are starting to buy things. Today that means a shared company card and hope. No budget, no approval, no off switch. This is Flaire, the finance department for AI employees, and every payment goes through PayPal."
 
-**0:00 to 0:14 Hook.** Screen: ChatGPT with the Notion prompt already pasted, press send as you start talking.
-"Companies are letting AI agents buy things. Today that means sharing a company card and hoping. No budget per agent, no approval, no off switch. This is Flaire, the finance department for AI employees, and every payment goes through PayPal."
+**0:12 to 0:50 Flow 1, within the rules.** Screen: ChatGPT answers, then Flaire Spending, open the row, show the PayPal panel, then the PayPal merchant Activity (refresh).
+"My AI employee lives in ChatGPT. I ask for a 100 dollar workspace. Flaire checks its budget, its per purchase limit and the supplier. All inside the rules, so Flaire pays through the PayPal Payouts API. And here it is in PayPal. 100 dollars, received."
 
-**0:14 to 0:50 Flow 1, under the limit.** Screen: ChatGPT answers, switch to Flaire Spending, open the Notion row, show the green PayPal panel, then switch to the PayPal merchant Activity and refresh.
-"My Marketing AI lives inside ChatGPT. I ask it for a Notion workspace, 375 riyals. Flaire checks the employee's budget, per purchase limit and the merchant. Everything is inside the rules, so Flaire pays through the PayPal Payouts API. 375 riyals becomes exactly 100 dollars. And here it is in PayPal, received and completed."
+**0:50 to 1:40 Flow 2, a human approves in PayPal.** Screen: ChatGPT with the second prompt, Flaire Approvals, Approve, password, PayPal login in the private window, Pay, return page, merchant Activity.
+"Now 200 dollars. On a shared card this just goes through. Here it is above this employee's approval limit, so Flaire stops and asks a person. The AI cannot approve its own spending. I approve in Flaire with my password. Then Flaire sends me to PayPal, where I approve again with my own PayPal login. PayPal Orders moves the money. Two approvals, and the merchant is paid."
 
-**0:50 to 1:40 Flow 2, a human approves.** Screen: ChatGPT with the Figma prompt, Flaire Approvals, click Approve, type password, PayPal popup, Pay, return page, merchant Activity.
-"Now a bigger purchase, 800 riyals for Figma. On a shared card this would just go through. Here, it is above this employee's approval threshold, so Flaire stops and asks a person. The AI cannot approve its own spending. I approve in Flaire with my password. Then Flaire sends me to PayPal, where I approve again with my own PayPal login. Two approvals. PayPal Orders moves the money. Approved by me in Flaire and in PayPal, and the merchant is paid."
+**1:40 to 2:05 Flow 3, blocked.** Screen: ChatGPT with the third prompt, the denial, Spending list showing the blocked row, kill switch on then off.
+"Now a request that breaks the rules. 320 dollars is over the limit, so it is denied before PayPal is ever called. And one kill switch freezes every AI employee at once."
 
-**1:40 to 2:05 Flow 3, blocked.** Screen: ChatGPT with the Canva 1,200 prompt, the denial, the Spending list showing a blocked row, then the kill switch toggled on and off.
-"Now a request that breaks the rules. 1,200 riyals is over the limit, so it is denied before PayPal is ever called. Blocked categories like gift cards never get through. And one kill switch freezes every AI employee at once."
+**2:05 to 2:25 Under the hood.** Screen: Connections, press Test PayPal connection, green message.
+"Under the hood: PayPal OAuth, Payouts with idempotency keys so a retry never pays twice, Orders for approval, and webhooks that Flaire never trusts without asking PayPal again. If PayPal returns a payout, the budget is given back. Any ChatGPT or Claude agent connects over MCP, and the API runs on Render."
 
-**2:05 to 2:25 Under the hood.** Screen: Connections page, press Test PayPal connection, show the green message, then the Spending row's PayPal panel.
-"Under the hood: PayPal OAuth, Payouts with idempotency keys, Orders for approval, and webhooks that Flaire never trusts without asking PayPal again. If PayPal returns a payout, the budget is given back automatically. Any ChatGPT or Claude agent connects through MCP, and Gemini powers the assistant inside the app."
+**2:25 to 2:45 Impact and honesty.** Screen: Flaire Overview.
+"Every company that lets agents spend has this problem, and today the answer is a shared card. Flaire earns a small fee on what it governs. Everything here runs in the PayPal sandbox, no real money moves. Next is live PayPal accounts. Flaire: let AI spend, with a human in charge."
 
-**2:25 to 2:42 Impact and honesty.** Screen: Flaire Overview page.
-"We built this in Saudi Arabia, so riyals convert to dollars automatically, but every company that lets agents spend has this problem. Flaire earns 0.15 percent of what it governs. Today everything runs in the PayPal sandbox. Next is live PayPal accounts. Flaire: let AI spend, with a human in charge."
-
-End card (2 seconds, text only): flaire-nine.vercel.app
+End card, 3 seconds, plain text: flaire-paypal.vercel.app
 
 ## Recording technique
 
-- Voice: record the voice over separately after the screen recording, reading from this script. Use your phone's voice memo app 15 cm from your mouth, in a small quiet room (a wardrobe or a car works). Do not use the laptop microphone. A clean voice matters more than anything else on this list.
-- Screen: record with OBS (free) at 1920x1080, 30 fps, or the Windows Game Bar (Win+G) per browser window. Record each flow as its own clip so you can retake one without redoing everything.
-- Edit in Clipchamp (free, built into Windows) or CapCut: cut dead air, speed waiting moments to 2x (PayPal page loads, the Render wake up), zoom in 120 percent on the amount, the PayPal panel and the Completed badge.
-- Add burned in captions. Many judges watch muted.
-- Pace: pause for a half second after each key number (375 riyals, 100 dollars, two approvals).
-- Do not say "um", "so basically" or "as you can see". Say the numbers.
-- Export 1080p MP4. Upload to YouTube as Public (not Unlisted), title: "Flaire: the finance department for AI employees, built on PayPal". Add the repo link and the live URL in the description.
-- Watch the uploaded video once on your phone, with sound off, to check that it makes sense with captions only.
+- Record the voice over separately after the screen, on your phone voice memo 15 cm from your mouth in a small quiet room (wardrobe or car). A clean voice matters more than anything.
+- Record each flow as its own clip (OBS or Win+G, 1080p, 30 fps) so you can retake one.
+- Edit in Clipchamp or CapCut: cut dead air, speed waiting moments 2x, zoom 120 percent on the amount and the PayPal panel, burned in captions (many judges watch muted).
+- Pause half a second after each key number. Do not say "um", "so basically" or "as you can see".
+- Export 1080p MP4. YouTube Public, title: "Flaire: the finance department for AI employees, built on PayPal". Put the GitHub and live links in the description.
+- Watch it once on your phone with the sound off.
 
 ## If you run out of time
 
-Cut the "Under the hood" beat to one sentence. Never cut Flow 2, it is the strongest moment in the whole video.
+Cut "Under the hood" to one sentence. Never cut Flow 2, it is the strongest moment.
 
-## Feature freeze rule (from the hackathon demo tips)
+## Feature freeze rule
 
-The demo script above is the user journey. If a feature is not in it, do not build it before the deadline. If a step cannot be shown live, cut it from the story. The only changes allowed now are fixes that stop the three flows (Notion-size purchase paid, mid-size purchase approved in PayPal, oversize purchase blocked) from working.
+If a feature is not in this script, do not build it before the deadline. Only fixes that keep the three flows working are allowed.
