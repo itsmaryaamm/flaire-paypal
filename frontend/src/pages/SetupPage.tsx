@@ -19,9 +19,11 @@ import { AsaRow } from '../components/settings/AsaRow'
 
 type StepId = 'company' | 'twofa' | 'card' | 'employee' | 'connect' | 'test' | 'finish'
 
-const ALL_STEPS: StepId[] = ['company', 'twofa', 'card', 'employee', 'connect', 'test', 'finish']
+const ALL_STEPS: StepId[] = PAYPAL_ONLY ? ['company', 'connect', 'test', 'finish'] : ['company', 'twofa', 'card', 'employee', 'connect', 'test', 'finish']
 const APPROVER_ROLES = ['owner', 'admin', 'finance']
-const TEST_PROMPT = 'Use Flaire to request a purchase of SAR 100 from Canva for a test design subscription.'
+const TEST_PROMPT = PAYPAL_ONLY
+  ? 'Use Flaire to request a purchase of $100 from Acme Design for a team workspace.'
+  : 'Use Flaire to request a purchase of SAR 100 from Canva for a test design subscription.'
 
 function readPendingCompany(): string {
   try {
@@ -164,7 +166,8 @@ function CompanyStep({ status, onBack, advance }: StepProps) {
       clearPendingCompany()
       // The budget lives on the first department; the first AI employee joins it.
       try {
-        await api.post<Department>('/departments', { name: 'Marketing', monthly_budget: cents })
+        if (PAYPAL_ONLY) await api.post('/onboarding/quickstart', {})
+        else await api.post<Department>('/departments', { name: 'Marketing', monthly_budget: cents })
       } catch {
         // Older backend or a race: the employee step creates the department if it is still missing.
       }
@@ -199,11 +202,13 @@ function CompanyStep({ status, onBack, advance }: StepProps) {
             <label className="label" htmlFor="s-name">{t('auth.yourName')}</label>
             <input id="s-name" className="input" value={fullName} onChange={(e) => setFullName(e.target.value)} placeholder="Sara" autoComplete="name" />
           </div>
-          <div>
-            <label className="label" htmlFor="s-budget">{t('settings.monthlyBudgetSar')}</label>
-            <input id="s-budget" className="input tnum" inputMode="decimal" required value={budget} onChange={(e) => setBudget(e.target.value)} />
-            <p className="text-xs text-neutral-500 mt-1">{t('setup.budgetHint')}</p>
-          </div>
+          {!PAYPAL_ONLY && (
+            <div>
+              <label className="label" htmlFor="s-budget">{t('settings.monthlyBudgetSar')}</label>
+              <input id="s-budget" className="input tnum" inputMode="decimal" required value={budget} onChange={(e) => setBudget(e.target.value)} />
+              <p className="text-xs text-neutral-500 mt-1">{t('setup.budgetHint')}</p>
+            </div>
+          )}
           <ErrorNote message={error} />
           <button type="submit" className="btn-primary w-full" disabled={busy || !companyName.trim()}>
             {busy && <Spinner />} {t('auth.createCompany')}
