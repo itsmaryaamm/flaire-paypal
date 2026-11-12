@@ -65,8 +65,8 @@ export default function OverviewPage() {
             <div>
               <div className="text-[14px] text-[#EEE7FF]">{PAYPAL_ONLY ? 'Spending' : 'Simulated spending'} · {month} · of {sar(cap)} cap</div>
               <div className="mt-2 flex items-baseline gap-2">
-                <span className="text-[#EEE7FF] text-[28px] -translate-y-3 inline-block">SAR</span>
-                <span className="font-display text-[clamp(44px,4.6vw,64px)] leading-none font-semibold tracking-[-0.04em] tnum">{Math.round(left / 100).toLocaleString()}</span>
+                <span className="text-[#EEE7FF] text-[28px] -translate-y-3 inline-block">{PAYPAL_ONLY ? 'USD' : 'SAR'}</span>
+                <span className="font-display text-[clamp(44px,4.6vw,64px)] leading-none font-semibold tracking-[-0.04em] tnum">{Math.round(left / 100 / (PAYPAL_ONLY ? 3.75 : 1)).toLocaleString()}</span>
                 <span className="text-[#EEE7FF] text-[18px]">remaining</span>
               </div>
               <p className="mt-3 text-[14px] text-[#EEE7FF] max-w-[460px]">Remaining under the company's monthly cap. An employee's own limit and approval rules can still block a request.</p>
