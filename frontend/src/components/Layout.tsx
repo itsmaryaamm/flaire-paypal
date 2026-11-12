@@ -1,3 +1,4 @@
+import { PAYPAL_ONLY } from '../lib/flags'
 import { useEffect, useMemo, useState } from 'react'
 import { NavLink, Outlet, useLocation, useNavigate } from 'react-router-dom'
 import { Search, Plus, LayoutGrid, Users, CreditCard, ShieldCheck, Landmark, Plug, SlidersHorizontal, Server, ShieldAlert } from 'lucide-react'
@@ -112,7 +113,7 @@ export function Layout() {
   const pendingCount = pending.data?.length ?? 0
   const admin = hasAdminView(user?.role)
   const operate = OPERATE
-  const manage = useMemo(() => [...MANAGE.filter((n) => !n.admin || admin), ...(user?.is_platform_admin ? [PLATFORM_NAV] : [])], [admin, user?.is_platform_admin])
+  const manage = useMemo(() => [...MANAGE.filter((n) => (!n.admin || admin) && !(PAYPAL_ONLY && n.to === '/finance')), ...(user?.is_platform_admin && !PAYPAL_ONLY ? [PLATFORM_NAV] : [])], [admin, user?.is_platform_admin])
   const [palette, setPalette] = useState(false)
   const { on: killOn, openModal, modal: killModal } = useKillSwitch()
 

@@ -1,3 +1,4 @@
+import { PAYPAL_ONLY } from '../lib/flags'
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react'
 import type { FormEvent, ReactNode } from 'react'
 import { useNavigate, useSearchParams } from 'react-router-dom'
@@ -230,7 +231,7 @@ function TwoFaStep({ status, onBack, advance }: StepProps) {
 function CardStep({ status, onBack, advance, refreshStatus }: StepProps) {
   const t = useT()
   const { company, setCompany } = useAuth()
-  const configured = !!company?.lithic_configured || !!status?.steps.card
+  const configured = PAYPAL_ONLY || !!company?.lithic_configured || !!status?.steps.card
   const [key, setKey] = useState('')
   const [busy, setBusy] = useState(false)
   const [error, setError] = useState<string | null>(null)
@@ -256,8 +257,8 @@ function CardStep({ status, onBack, advance, refreshStatus }: StepProps) {
 
   return (
     <StepFrame
-      title={t('setup.cardTitle')}
-      why={t('setup.cardWhy')}
+      title={PAYPAL_ONLY ? 'Payments run through PayPal' : t('setup.cardTitle')}
+      why={PAYPAL_ONLY ? 'Flaire pays merchants with the PayPal sandbox. There is nothing to connect on this screen.' : t('setup.cardWhy')}
       canContinue={configured}
       noContinue={!configured}
       onContinue={() => void advance()}
@@ -269,7 +270,7 @@ function CardStep({ status, onBack, advance, refreshStatus }: StepProps) {
         <span className="text-neutral-600">{t('setup.cardStatus')}:</span>
         {configured ? <StatusPill tone="green" dot>{t('setup.configured')}</StatusPill> : <StatusPill tone="neutral">{t('setup.notConfigured')}</StatusPill>}
       </div>
-      <form onSubmit={save} className="space-y-3">
+      {!PAYPAL_ONLY && <form onSubmit={save} className="space-y-3">
         <div>
           <label className="label" htmlFor="s-lithic">{t('setup.lithicKeyLabel')}</label>
           <div className="flex flex-col sm:flex-row gap-2">
@@ -289,10 +290,10 @@ function CardStep({ status, onBack, advance, refreshStatus }: StepProps) {
           <p className="text-xs text-neutral-500 mt-1.5">{t('setup.lithicHint')}</p>
         </div>
         <ErrorNote message={error} />
-      </form>
-      <div key={asaKey}>
+      </form>}
+      {!PAYPAL_ONLY && <div key={asaKey}>
         <AsaRow />
-      </div>
+      </div>}
     </StepFrame>
   )
 }
