@@ -2,9 +2,9 @@ import { useMemo } from 'react'
 import { Link, Navigate, useSearchParams } from 'react-router-dom'
 import { ChevronRight } from 'lucide-react'
 import { api } from '../lib/api'
-import { PayPalStrip } from '../components/PayPalStrip'
 import { useFetch } from '../lib/useFetch'
 import { sar } from '../lib/money'
+import { PAYPAL_ONLY } from '../lib/flags'
 import type { DashboardSummary, PurchaseRequest } from '../types'
 import { ErrorNote } from '../components/ErrorNote'
 import { PageLoader } from '../components/Spinner'
@@ -46,7 +46,7 @@ export default function OverviewPage() {
     }
     const big = (reqs.data ?? []).find((r) => (r.status === 'denied' || r.status === 'rejected') && r.amount >= 5 * Math.max(1, agents.find((a) => a.id === r.agent_id)?.approval_threshold ?? 1))
     if (big) out.push({ key: `big-${big.id}`, title: `${sar(big.amount)} attempt by ${big.agent_name}`, body: `Flaire refused it. That is far above its approval line.`, cta: 'Review', to: '/spending' })
-    if (cap > 0 && spent / cap >= 0.9) out.push({ key: 'cap', title: `Company cap ${Math.round((spent / cap) * 100)}% used`, body: `${sar(left)} left under the simulated monthly cap.`, cta: 'Change cap', to: '/controls#budgets' })
+    if (cap > 0 && spent / cap >= 0.9) out.push({ key: 'cap', title: `Company cap ${Math.round((spent / cap) * 100)}% used`, body: `${sar(left)} left under the monthly cap.`, cta: 'Change cap', to: '/controls#budgets' })
     return out.slice(0, 3)
   }, [agents, reqs.data, cap, spent, left])
 
@@ -58,19 +58,18 @@ export default function OverviewPage() {
 
   return (
     <div className="flex flex-col gap-5">
-      <PayPalStrip />
       {summary.error && !summary.data && <ErrorNote message={summary.error} />}
       <div className="flex flex-wrap gap-5 items-stretch">
         <section className="flex-[2.2_1_600px] rounded-[22px] p-7 text-white" style={{ background: 'linear-gradient(135deg,#8A2FE6 0%,#6A22C9 42%,#2E0F6B 100%)' }}>
           <div className="flex items-start justify-between gap-6 flex-wrap">
             <div>
-              <div className="text-[14px] text-[#EEE7FF]">Simulated spending · {month} · of {sar(cap)} cap</div>
+              <div className="text-[14px] text-[#EEE7FF]">{PAYPAL_ONLY ? 'Spending' : 'Simulated spending'} · {month} · of {sar(cap)} cap</div>
               <div className="mt-2 flex items-baseline gap-2">
                 <span className="text-[#EEE7FF] text-[28px] -translate-y-3 inline-block">SAR</span>
                 <span className="font-display text-[clamp(44px,4.6vw,64px)] leading-none font-semibold tracking-[-0.04em] tnum">{Math.round(left / 100).toLocaleString()}</span>
                 <span className="text-[#EEE7FF] text-[18px]">remaining</span>
               </div>
-              <p className="mt-3 text-[14px] text-[#EEE7FF] max-w-[460px]">Remaining under the company's simulated monthly cap. An employee's own limit and approval rules can still block a request.</p>
+              <p className="mt-3 text-[14px] text-[#EEE7FF] max-w-[460px]">Remaining under the company's monthly cap. An employee's own limit and approval rules can still block a request.</p>
             </div>
             <div className="flex gap-8 text-[14px]">
               <div><div className="text-[#EEE7FF]">Authorized</div><div className="font-display text-[22px] font-semibold tnum">{sar(spent)}</div></div>
