@@ -2,6 +2,7 @@ import { useMemo } from 'react'
 import { Link, Navigate, useSearchParams } from 'react-router-dom'
 import { ChevronRight } from 'lucide-react'
 import { api } from '../lib/api'
+import { PayPalStrip } from '../components/PayPalStrip'
 import { useFetch } from '../lib/useFetch'
 import { sar } from '../lib/money'
 import type { DashboardSummary, PurchaseRequest } from '../types'
@@ -57,6 +58,7 @@ export default function OverviewPage() {
 
   return (
     <div className="flex flex-col gap-5">
+      <PayPalStrip />
       {summary.error && !summary.data && <ErrorNote message={summary.error} />}
       <div className="flex flex-wrap gap-5 items-stretch">
         <section className="flex-[2.2_1_600px] rounded-[22px] p-7 text-white" style={{ background: 'linear-gradient(135deg,#8A2FE6 0%,#6A22C9 42%,#2E0F6B 100%)' }}>

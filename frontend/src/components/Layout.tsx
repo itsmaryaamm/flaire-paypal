@@ -167,7 +167,7 @@ export function Layout() {
             <img src="/flaire-mark.png" alt="" className="h-9 w-9 object-contain" />
             <div className="leading-tight">
               <div className="font-display text-[19px] font-semibold tracking-tight">Flaire</div>
-              <div className="text-[13px] text-[#6F6878]">{company?.name} · SAR</div>
+              <div className="text-[13px] text-[#6F6878]">{company?.name} · {PAYPAL_ONLY ? 'PayPal sandbox' : 'SAR'}</div>
             </div>
           </div>
           <nav className="flex-1">

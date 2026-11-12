@@ -1,6 +1,7 @@
 import type { ReactNode } from 'react'
 import { Link } from 'react-router-dom'
 import { LanguageSwitch } from '../lib/i18n'
+import { PAYPAL_ONLY } from '../lib/flags'
 
 export function AuthShell({ title, subtitle, children }: { title: string; subtitle: string; children: ReactNode }) {
   return (
@@ -13,6 +14,7 @@ export function AuthShell({ title, subtitle, children }: { title: string; subtit
         <p className="text-sm text-neutral-600 mt-1.5 mb-6">{subtitle}</p>
         {children}
       </div>
+      {PAYPAL_ONLY && <p className="mt-5 text-xs text-neutral-500 text-center max-w-sm">Built for the PayPal AI Hackathon. Every payment runs through PayPal. Sandbox only, no real money moves.</p>}
       <div className="mt-6">
         <LanguageSwitch />
       </div>
